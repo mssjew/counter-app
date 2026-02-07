@@ -1,117 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter App</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .container {
-            text-align: center;
-            padding: 40px;
-        }
-        .label {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #555;
-            margin-bottom: 30px;
-        }
-        .counter {
-            font-size: clamp(80px, 20vw, 180px);
-            font-weight: 800;
-            line-height: 1;
-            margin-bottom: 50px;
-            transition: transform 0.15s ease, color 0.3s ease;
-            font-variant-numeric: tabular-nums;
-            user-select: none;
-        }
-        .counter.bump { transform: scale(1.08); }
-        .counter.positive { color: #4ade80; }
-        .counter.negative { color: #f87171; }
-        .counter.zero { color: #fff; }
-        .buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        button {
-            background: #1a1a1a;
-            color: #fff;
-            border: 1px solid #333;
-            padding: 16px 36px;
-            font-size: 20px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            min-width: 80px;
-        }
-        button:hover { background: #252525; border-color: #555; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-        .btn-minus { color: #f87171; border-color: rgba(248,113,113,0.3); }
-        .btn-minus:hover { background: rgba(248,113,113,0.1); border-color: #f87171; }
-        .btn-plus { color: #4ade80; border-color: rgba(74,222,128,0.3); }
-        .btn-plus:hover { background: rgba(74,222,128,0.1); border-color: #4ade80; }
-        .btn-reset { color: #888; font-size: 14px; padding: 16px 24px; }
-        .btn-reset:hover { color: #fff; }
-        .glow {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.08;
-            pointer-events: none;
-            transition: background 0.5s ease;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter App</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Subtle animated gradient bg */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,.12) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(168,85,247,.10) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .card {
+      position: relative;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 3rem 4rem;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 60px rgba(0,0,0,.4);
+      min-width: 340px;
+    }
+
+    h1 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .35em;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+
+    #counter {
+      font-size: 7rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 2.5rem;
+      transition: transform .15s ease, color .25s ease;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+      user-select: none;
+    }
+
+    #counter.bump-up {
+      transform: scale(1.12);
+      color: #818cf8;
+    }
+
+    #counter.bump-down {
+      transform: scale(0.92);
+      color: #f472b6;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 14px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: .85rem 1.8rem;
+      transition: all .2s ease;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,.08);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    button:hover::after { opacity: 1; }
+    button:active { transform: scale(.95); }
+
+    .btn-dec {
+      background: linear-gradient(135deg, #ec4899, #be185d);
+      box-shadow: 0 4px 20px rgba(236,72,153,.3);
+    }
+
+    .btn-inc {
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      box-shadow: 0 4px 20px rgba(99,102,241,.3);
+    }
+
+    .btn-reset {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.5);
+      box-shadow: none;
+      font-size: 1rem;
+      padding: .85rem 1.5rem;
+    }
+
+    .btn-reset:hover { color: #fff; background: rgba(255,255,255,.12); }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.5rem; min-width: 0; width: 90vw; }
+      #counter { font-size: 5rem; margin-bottom: 2rem; }
+      button { padding: .75rem 1.4rem; font-size: 1.1rem; }
+    }
+  </style>
 </head>
 <body>
-    <div class="glow" id="glow"></div>
-    <div class="container">
-        <p class="label">Counter</p>
-        <div class="counter zero" id="count">0</div>
-        <div class="buttons">
-            <button class="btn-minus" onclick="update(-1)">−</button>
-            <button class="btn-reset" onclick="reset()">Reset</button>
-            <button class="btn-plus" onclick="update(1)">+</button>
-        </div>
+  <div class="card">
+    <h1>Counter</h1>
+    <div id="counter">0</div>
+    <div class="controls">
+      <button class="btn-dec" onclick="update(-1)">− Decrease</button>
+      <button class="btn-reset" onclick="reset()">Reset</button>
+      <button class="btn-inc" onclick="update(1)">+ Increase</button>
     </div>
-    <script>
-        let count = 0;
-        const el = document.getElementById('count');
-        const glow = document.getElementById('glow');
-        function update(n) {
-            count += n;
-            render();
-        }
-        function reset() {
-            count = 0;
-            render();
-        }
-        function render() {
-            el.textContent = count;
-            el.classList.remove('positive', 'negative', 'zero');
-            el.classList.add(count > 0 ? 'positive' : count < 0 ? 'negative' : 'zero');
-            glow.style.background = count > 0 ? '#4ade80' : count < 0 ? '#f87171' : '#fff';
-            el.classList.add('bump');
-            setTimeout(() => el.classList.remove('bump'), 150);
-        }
-    </script>
+  </div>
+
+  <script>
+    let count = 0;
+    const el = document.getElementById('counter');
+
+    function update(delta) {
+      count += delta;
+      el.textContent = count;
+      const cls = delta > 0 ? 'bump-up' : 'bump-down';
+      el.classList.remove('bump-up', 'bump-down');
+      // Force reflow to retrigger animation
+      void el.offsetWidth;
+      el.classList.add(cls);
+      setTimeout(() => el.classList.remove(cls), 150);
+    }
+
+    function reset() {
+      count = 0;
+      el.textContent = '0';
+      el.classList.remove('bump-up', 'bump-down');
+    }
+  </script>
 </body>
 </html>
